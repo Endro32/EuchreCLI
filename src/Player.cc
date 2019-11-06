@@ -14,6 +14,8 @@
 Player::Player(): human(true), tricksWon(0) {
 	std::cout << "Please enter a username: ";
 	std::cin >> name;
+
+	handStrength = 0, trumpCards = 0;
 }
 
 Player::Player(std::string n): name(n), human(false), tricksWon(0) {
@@ -31,8 +33,36 @@ bool Player::promptPickUp() {
 	std::cin >> s;
 	return std::tolower(s[0]) == 'y';
 }
-bool Player::decidePickUp() {
-	return promptPickUp();
+
+// AI will decide to order it up or not
+bool Player::decidePickUp(int tsuit) {
+	int trumps = 0, aces = 0, hStrength = 0;
+	bool leftBower = false, rightBower = false;
+	for (Card *c : hand) {
+		int strength = c->getStrength(tsuit);
+		hStrength += strength;
+
+		if (c->getSuit() == tsuit)
+			trumps++;
+		else if (c->getRank() == Card::ACE)
+			aces++;
+
+		if (strength == 13)
+			leftBower = true;
+		else if (strength == 12)
+			rightBower= true;
+	}
+
+	if ((trumps < 2 || (trumps == 2 && aces < 2) || (trumps == 3 && hStrength < 35)) &&
+			!(leftBower && rightBower)) {	// Special cases
+		return false;
+	}
+
+	trumpCards = trumps;
+	aceCards = aces;
+	left = leftBower, right = rightBower;
+	handStrength = hStrength;
+	return true;
 }
 
 int Player::promptNameTrump() {
@@ -192,11 +222,11 @@ Card *Player::getLastPlayedCard() {
 }
 
 // Request that the player decide to have the dealer pick it up or not
-bool Player::wantPickUp() {
+bool Player::wantPickUp(int tsuit) {
 	if (human)
 		return promptPickUp();
 	else
-		return decidePickUp();
+		return decidePickUp(tsuit);
 }
 
 int Player::nameTrump() {

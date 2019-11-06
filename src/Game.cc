@@ -65,6 +65,8 @@ void Game::dealHand() {
 
 // Plays a hand!
 void Game::playHand() {
+	int tSuit = -1;
+
 	if (++dealer > 4) // Increment dealer and loop back to zero if necessary
 		dealer = 0;
 	Player *dealerO = getPlayer(dealer);		// Dealer Object
@@ -72,6 +74,7 @@ void Game::playHand() {
 
 	dealHand();
 	top = deck->flipTop();
+	tSuit = top->getSuit();
 	std::cout << "Top card is " << top->getSuitAsString() << std::endl;
 
 	Player *player;
@@ -81,8 +84,8 @@ void Game::playHand() {
 		player = getPlayer(playerIndex);
 
 		if (i <= 4) {
-			if (player->wantPickUp()) {	// If player wants dealer to pick it up
-				trump = top->getSuit();
+			if (player->wantPickUp(tSuit)) {	// If player wants dealer to pick it up
+				trump = tSuit;
 				goingAlone = player->goingAlone();
 				deck->put_back(dealerO->discard());
 				dealerO->giveCard(deck->dealCard());

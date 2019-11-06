@@ -146,6 +146,42 @@ int Card::getStrength(int trump, int curSuit) {
 	}
 }
 
+int Card::getStrength(int trump) {
+	if (suit == trump) { 		// Return values for cards of trump suit
+		switch (rank) {
+		case 9:				return 7;
+		case 10:			return 8;
+		case Card::QUEEN:	return 9;
+		case Card::KING:	return 10;
+		case Card::ACE:		return 11;
+		case Card::JACK:	return 13;
+		}
+	}
+
+	int leftBower = -1;				// Determine which suite the left bower is in
+	switch (trump) {
+	case SPADES:
+		leftBower = CLUBS;
+		break;
+	case HEARTS:
+		leftBower = DIAMONDS;
+		break;
+	case CLUBS:
+		leftBower = SPADES;
+		break;
+	case DIAMONDS:
+		leftBower = HEARTS;
+		break;
+	}							// Now check if this card is the left bower
+	if (suit == leftBower && rank == Card::JACK)
+		return 12;				// Return value for the left bower
+
+	if (rank == Card::ACE)		// Return value for the ace of current suit
+		return 6;
+	else						// Return value for all other cards of current suit
+		return rank - 8;
+}
+
 // Deck Class ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 /**

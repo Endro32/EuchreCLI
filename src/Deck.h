@@ -39,6 +39,7 @@ public:
 	int getRank();
 	std::string getRankAsString();
 	int getStrength(int trump, int currentSuit);
+	int getStrength(int trump);
 private:
 	const int suit;
 	const int rank;
