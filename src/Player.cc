@@ -94,8 +94,54 @@ int Player::promptNameTrump() {
 
 	return t; // Should never hit this point, but just in case
 }
+
 int Player::decideNameTrump() {
-	return promptNameTrump();
+	int strengths[4] = {0, 0, 0, 0};		// Strength of hand if each suit were trump
+	int trumps[4] = {0, 0, 0, 0};			// Number of cards of each suit (including right bower)
+	int aces[4] = {0, 0, 0, 0};				// Number of aces not in each suit
+	int strongest = 0;						// Holds the strongest suit
+
+	for (Card *c : hand) {
+		for (int s = 0; s < 4; s++) {
+			strengths[s] += c->getStrength(s);
+
+			if (c->getSuit() == s)
+				trumps[s]++;
+			else if (c->getRank() == Card::ACE)
+				aces[s]++;
+		}
+	}
+
+	for (int s = 0; s < 4; s++) {			// For each suit
+		if ((strengths[s] > strengths[strongest] && (trumps[s] >= trumps[strongest] || strengths[s] > 40)) ||
+				(strengths[s] == strengths[strongest] && trumps[s] > trumps[strongest])) {
+			strongest = s;
+		}
+	}
+
+	int ss = strengths[strongest], ts = trumps[strongest], as = aces[strongest];
+	//printHand();			// For fine-tuning of AI difficulty
+	//std::cout << name << ". ss " << ss << ", ts " << ts << ", as " << as << std::endl;
+	if (ts < 2 || (ts == 2 && as < 2) || (ts == 3 && ss < 35)) {
+		return -1;
+	}
+
+	trumpCards = ts;
+	aceCards = as;
+	handStrength = ss;
+
+	for (Card *c : hand) {
+		switch (c->getStrength(strongest)) {
+		case 13:
+			left = true;
+			break;
+		case 12:
+			right = true;
+			break;
+		}
+	}
+
+	return strongest;
 }
 
 bool Player::promptGoAlone() {
@@ -104,8 +150,12 @@ bool Player::promptGoAlone() {
 	std::cin >> s;
 	return std::tolower(s[0]) == 'y';
 }
+
 bool Player::decideGoAlone() {
-	return promptGoAlone();
+	if (trumpCards == 5 || (trumpCards == 4 && aceCards == 1))
+		return true;
+	else
+		return false;
 }
 
 int Player::promptPlayCard(int suit) {
@@ -223,6 +273,7 @@ Card *Player::getLastPlayedCard() {
 
 // Request that the player decide to have the dealer pick it up or not
 bool Player::wantPickUp(int tsuit) {
+	return false;
 	if (human)
 		return promptPickUp();
 	else

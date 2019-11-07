@@ -87,9 +87,9 @@ void Game::playHand() {
 			if (player->wantPickUp(tSuit)) {	// If player wants dealer to pick it up
 				trump = tSuit;
 				goingAlone = player->goingAlone();
+				std::cout << player->getName() << " made the dealer pick it up.\n";
 				deck->put_back(dealerO->discard());
 				dealerO->giveCard(deck->dealCard());
-				std::cout << player->getName() << " made the dealer pick it up.\n";
 				maker = playerIndex;
 				break;
 
